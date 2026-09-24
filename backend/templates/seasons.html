@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block body %}
+<h2>四季放行线</h2>
+<table>
+  <thead><tr><th>季节</th><th>当前放行线</th><th>最后改线人</th><th>时刻</th>{% if can_write %}<th>调整</th>{% endif %}</tr></thead>
+  <tbody>
+    {% for line in lines %}
+    <tr>
+      <td>{{ line.season }}季</td>
+      <td>{{ line.line }}</td>
+      <td>{{ line.changed_by }}</td>
+      <td>{{ line.changed_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+      {% if can_write %}
+      <td>
+        <form method="post" action="{{ url_for('update_line', season=line.season) }}" style="display:flex;gap:6px;padding:0;margin:0;background:none;">
+          <input name="line" type="number" step="0.1" min="0" max="10" value="{{ line.line }}" required style="width:80px;" />
+          <button>改线</button>
+        </form>
+      </td>
+      {% endif %}
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<h2>改线履历</h2>
+<table>
+  <thead><tr><th>季节</th><th>旧线</th><th>新线</th><th>改线人</th><th>时刻</th></tr></thead>
+  <tbody>
+    {% for h in history %}
+    <tr>
+      <td>{{ h.season }}季</td>
+      <td>{{ h.old_line if h.old_line is not none else '—' }}</td>
+      <td>{{ h.new_line }}</td>
+      <td>{{ h.changed_by }}</td>
+      <td>{{ h.changed_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+    </tr>
+    {% else %}
+    <tr><td colspan="5">暂无改线记录</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if not can_write %}
+<p>观察员账号仅可查看四季线表与履历，不能调整放行线。</p>
+{% endif %}
+{% endblock %}
